@@ -1,10 +1,10 @@
 from mip import Model, xsum, maximize, minimize, BINARY, INTEGER
 
-def demand_upto(D, j, item):
+def demand_upto(D, current_time, item_index):
     # D size: J x L
     result = 0
-    for period in range(j):
-        result += D[period][item]
+    for period in range(current_time):
+        result += D[period][item_index]
     return result
 
 def dot_product(a, b):
@@ -32,16 +32,17 @@ D = [[40, 30], [60, 60], [100, 100]]
 model = Model('loop minimization')
 
 Lambda = [model.add_var(var_type=INTEGER) for i in range(L)]
-#Lambda[0] = 1
-#Lambda[1] = 1
 
 model.objective = minimize(xsum(Lambda[i] * t[i] for i in range(L)))
 
 # add constraints
 for i in range(1, L+1):
     for j in range(1, J+1):
-        tmp = D[j-1][i-1] - I0[i-1] + demand_upto(D, j, i-1)
-        model += xsum(t[i] * Lambda[i] for i in range(L)) * (D[j-1][i-1] - I0[i-1] + demand_upto(D, j, i-1)) <= j*T*3
+        coeff = [0] * L
+        for k in range(L):
+            coeff[k] = t[k]*(I0[i-1]-demand_upto(D, j, i-1))
+        coeff[i-1] += j*T
+        model += xsum(coeff[i] * Lambda[i] for i in range(L)) >= 0
 
 model += xsum(t[i] * Lambda[i] for i in range(L)) >= 1
 
