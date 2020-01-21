@@ -103,7 +103,8 @@ for i in range(1, L+1):
     #Add the item's skipping coefficients to the final matrix:
     S.append(skip_coeff)
 
-#I am getting some index out of bound errors here:
-for i in range(len(S)-1):
-    for j in range(len(S[i]-1)):
-        print("Coefficient for the {} item in the {} period:".format(i,j) + str(S[j][i]))
+def displaySkippingCoefficients(S):
+
+    for i in range(len(S)):
+        for j in range(len(S[i])):
+           print("Coefficient for item {} in time period {}:".format(i+1,j+1) + "" + str(S[i][j]))
