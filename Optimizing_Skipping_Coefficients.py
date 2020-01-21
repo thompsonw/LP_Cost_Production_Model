@@ -63,6 +63,7 @@ for i in range(1, L+1):
             coeff[k] = t[k]*(I0[i-1]-demand_upto(D, j, i-1))
         coeff[i-1] += j*T
         model += xsum(coeff[i] * Lambda[i] for i in range(L)) >= 0
+
         # add coeffs in for cost constraint
         cost_coeff[i-1] = get_cost_coeff(i-1)
 
@@ -81,13 +82,17 @@ print([Lambda[i].x for i in range(L)])
 
 #Calculate Skipping Coefficients
 
-S= []
+S= [] #matrix of ones and zeros
+
+#Find the baseloop time:
 baseloop_time = dot_product(t, [Lambda[i].x for i in range(L)])
 
+#Loop through each time period for each item
 for i in range(1, L+1):
-    skip_coeff = []
+    skip_coeff = [] #Skipping coefficients for item i
     for j in range(1, J+1):
 
+        #Check if inventory is greater than demand:
         I_ij = (I0[i-1]-demand_upto(D, j, i-1) + ((j*T)/baseloop_time))
         if (I_ij >= D[j-1][i-1]):
             s_ij = 0
@@ -95,8 +100,10 @@ for i in range(1, L+1):
             s_ij = 1
         skip_coeff.append(s_ij)
 
+    #Add the item's skipping coefficients to the final matrix:
     S.append(skip_coeff)
 
+#I am getting some index out of bound errors here:
 for i in range(len(S)-1):
     for j in range(len(S[i]-1)):
         print("Coefficient for the {} item in the {} period:".format(i,j) + str(S[j][i]))
