@@ -1,28 +1,6 @@
 import numpy as np
+from random import *
 from mip import Model, xsum, maximize, minimize, BINARY, INTEGER
-
-def demand_upto(D, current_time, item_index):
-    # D size: J x L
-    result = 0
-    for period in range(current_time):
-        result += D[period][item_index]
-    return result
-
-def dot_product(a, b):
-    # a and b are lists of the same length
-    result = 0
-    for i in range(len(a)):
-        result += a[i]*b[i]
-    return result
-
-def get_cost_coeff(index):
-    term1 = T * J * (J-1) * h[index] / 2
-    J_vector = [i for i in range(8, -1, -1)]
-    J_np = np.array(J_vector)
-    D_np = np.asarray(D_init)
-    h_np = np.array(h)
-    term2 = t[i-1] * (J * dot_product(h, I0) - np.dot(np.dot(J_np, D_np),h_np) - Tau)
-    return term1 + term2
 
 # number of items
 L = 2
@@ -46,65 +24,80 @@ D_init = [[0, 0], [70, 80], [40, 50], [70, 50], \
           [60, 60], [200, 275], [220, 225], [295, 300], [295, 350]] # demand
 
 
-model = Model('loop minimization')
-
-Lambda = [model.add_var(var_type=INTEGER) for i in range(L)]
-
-model.objective = minimize(xsum(Lambda[i] * t[i] for i in range(L)))
-
-cost_coeff = [0] * L
-
-# add constraints
-for i in range(1, L+1):
-    for j in range(1, J+1):
-        # baseloop constraints
-        coeff = [0] * L
-        for k in range(L):
-            coeff[k] = t[k]*(I0[i-1]-demand_upto(D, j, i-1))
-        coeff[i-1] += j*T
-        model += xsum(coeff[i] * Lambda[i] for i in range(L)) >= 0
-
-        # add coeffs in for cost constraint
-        cost_coeff[i-1] = get_cost_coeff(i-1)
+def demand_upto(D, current_time, item_index):
+    # D size: J x L
+    demand = 0
+    for period in range(current_time):
+        deamand += D[period][item_index]
+    return demand
 
 
+def get_cost_coeff(index, h, a, I0, t, Tau, D_init, T, J):
+    term1 = T * J * (J-1) * h[index] / 2
+    J_vector = [i for i in range(8, -1, -1)]
+    J_np = np.array(J_vector)
+    D_np = np.asarray(D_init)
+    h_np = np.array(h)
+    term2 = t[i-1] * (J * dot_product(h, I0) - np.dot(np.dot(J_np, D_np),h_np) - Tau)
+    return term1 + term2
 
-# cost constraint
-#model += xsum(cost_coeff[i] * Lambda[i] for i in range(L)) <= J * T * sum(a)
+def dot_product(a, b):
+    # a and b are lists of the same length
+    result = 0
+    for i in range(len(a)):
+        result += a[i]*b[i]
+    return result
 
-# looptime >= 1
-model += xsum(t[i] * Lambda[i] for i in range(L)) >= 1
+def optimizeBaseloop(L, J, totalTime, I0, D, D_inti, a, h, costTolerance, S):
 
-model.optimize()
+    model = Model('loop minimization')
+    Lambda = [model.add_var(var_type=INTEGER) for i in range(L)]
+    model.objective = minimize(xsum(Lambda[i] * t[i] for i in range(L)))
 
-print([Lambda[i].x for i in range(L)])
+    cost_coeff = [0] * L
 
+    #Add Constraints:
+    for i in range(1, L+1):
+        for j in range(1, J+1):
 
-#Calculate Skipping Coefficients
+            # baseloop constraints
+            coeff = [0] * L
+            for k in range(L):
+                coeff[k] = t[k]*(I0[i-1]-demand_upto(D, j, i-1))
+            coeff[i-1] += j*T
+            model += xsum(coeff[i] * Lambda[i] for i in range(L)) >= 0
 
-S= [] #matrix of ones and zeros
+            # add coeffs in for cost constraint
+            cost_coeff[i-1] = get_cost_coeff(i-1)
 
-#Find the baseloop time:
-baseloop_time = dot_product(t, [Lambda[i].x for i in range(L)])
+    # looptime >= 1
+    model += xsum(t[i] * Lambda[i] for i in range(L)) >= 1
 
-#Loop through each time period for each item
-for i in range(1, L+1):
-    skip_coeff = [] #Skipping coefficients for item i
-    for j in range(1, J+1):
+    # cost constraint
+    #model += xsum(cost_coeff[i] * Lambda[i] for i in range(L)) <= J * T * sum(a)
+    model.optimize()
+    #print([Lambda[i].x for i in range(L)])
+    return [Lambda[i].x for i in range(L)]
 
-        #Check if inventory is greater than demand:
-        I_ij = (I0[i-1]-demand_upto(D, j, i-1) + ((j*T)/baseloop_time))
-        if (I_ij >= D[j-1][i-1]):
-            s_ij = 0
+def optimizeSkipping (skipCoeffMatrix, Lambda):
+    pass #recursive approach?
+
+def modifySkipCoeffMatrix(skipCoeffMatrix):
+
+    #Determine the number of coefficients to change:
+    swaps = 10
+    for i in range(swaps):
+        row = random.randint(0, len(skipCoeffMatrix)-1)
+        column = random.randint(0,len(skipCoeffMatrix[0])-1)
+
+        if (skipCoeffMatrix[row][column] == 0):
+            skipCoeffMatrix[row][column] = 1
         else:
-            s_ij = 1
-        skip_coeff.append(s_ij)
+            skipCoeffMatrix[row][column] = 0
+    return skipCoeffMatrix
 
-    #Add the item's skipping coefficients to the final matrix:
-    S.append(skip_coeff)
+def displaySkipCoeff(skipCoeffMatrix):
 
-def displaySkippingCoefficients(S):
-
-    for i in range(len(S)):
-        for j in range(len(S[i])):
-           print("Coefficient for item {} in time period {}:".format(i+1,j+1) + "" + str(S[i][j]))
+    for i in range(len(skipCoeffMatrix)):
+        for j in range(len(skipCoeffMatrix[i])):
+           print("Coefficient for item {} in time period {}:".format(i+1,j+1) + "" + str(skipCoeffMatrix[i][j]))
