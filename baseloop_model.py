@@ -23,8 +23,6 @@ J = 3
 # vector of item times
 t  = [2, 4]
 
-# answers lambda = [2; 1]
-
 T = 300
 I0 = [10, 100]
 D = [[40, 30], [60, 60], [100, 100]]
