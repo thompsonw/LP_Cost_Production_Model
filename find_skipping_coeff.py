@@ -2,35 +2,20 @@ from cost_model import cost_model
 import random
 import math
 
-def get_baseloop_skipping(Lambda, t, s):
-    '''
-    compute baseloop at a time period
 
-    PARAM:
-    Lambda: a list of L items, each correspond to number of one item
-    produced in a loop
-    t: a list of time takes to produce one unit of item
-    s: a list of L skipping coeffs for this time period
-    '''
-    baseloop = 0
-    for i in range(len(Lambda)):
-        baseloop += Lambda[i]*t[i]*s[i]
-    return baseloop
+def random_simulation(L, J, I0, h, a, trigger_point, D, t, Tau, T, num_simulation, optimal_lambda, neighbourhood):
 
-def get_random_lambdas(optimal_lambda, neighbourhood):
-    '''
-    optimal_lambda: a list of L items output by the non-skipping model
-    neighbourhood: a number that gives a interval for lambdas we can take in
-    the simulation
-    '''
-    result = optimal_lambda.copy()
-    for i in range(len(optimal_lambda)):
-        #result[i] = random.uniform(optimal_lambda[i] - neighbourhood, \
-                                   #optimal_lambda[i] + neighbourhood)
-        result[i] = random.uniform(optimal_lambda[i], optimal_lambda[i] + neighbourhood)
-    return result
+    simulation_results = {}
+    for i in range(num_simulation):
+        Lambda = get_random_lambdas(optimal_lambda, neighbourhood)
+        avg_baseloop = get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T)
 
-def simulation(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T):
+        if avg_baseloop != -1:
+            simulation_results[avg_baseloop] = Lambda
+
+    return simulation_results
+
+def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T):
     # initialize placeholders (all zeros) for skipping coefficients
     S = []
     for time_index in range(J):
@@ -88,7 +73,44 @@ def simulation(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T):
     print('feasiblility achieved in this simulation')
     print('average baseloop time is: ', avg_baseloop)
     print('skipping coefficients: ', S)
-    return 0
+    return avg_baseloop
+
+
+def get_baseloop_skipping(Lambda, t, s):
+    '''
+    compute baseloop at a time period
+
+    PARAM:
+    Lambda: a list of L items, each correspond to number of one item
+    produced in a loop
+    t: a list of time takes to produce one unit of item
+    s: a list of L skipping coeffs for this time period
+    '''
+    baseloop = 0
+    for i in range(len(Lambda)):
+        baseloop += Lambda[i]*t[i]*s[i]
+    return baseloop
+
+def get_random_lambdas(optimal_lambda, neighbourhood):
+    '''
+    optimal_lambda: a list of L items output by the non-skipping model
+    neighbourhood: a number that gives a interval for lambdas we can take in
+    the simulation
+    '''
+    result = optimal_lambda.copy()
+    for i in range(len(optimal_lambda)):
+        #result[i] = random.uniform(optimal_lambda[i] - neighbourhood, \
+                                   #optimal_lambda[i] + neighbourhood)
+        result[i] = random.uniform(optimal_lambda[i], optimal_lambda[i] + neighbourhood)
+    return result
+
+def get_siumulation_results(some_simulation):
+
+    optimal_avg_baseloop = min(some_simulation.keys())
+    optimal_lambda = some_simulation[optimal_avg_baseloop]
+
+    return (optimal_avg_baseloop, optimal_lambda)
+
 
 def main():
     # find optimal lambdas in non-skipping model
