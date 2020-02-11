@@ -104,10 +104,10 @@ def get_random_lambdas(optimal_lambda, neighbourhood):
         result[i] = random.uniform(optimal_lambda[i], optimal_lambda[i] + neighbourhood)
     return result
 
-def get_siumulation_results(some_simulation):
+def get_optimal_siumulation_results(some_simulation_result):
 
-    optimal_avg_baseloop = min(some_simulation.keys())
-    optimal_lambda = some_simulation[optimal_avg_baseloop]
+    optimal_avg_baseloop = min(some_simulation_result.keys())
+    optimal_lambda = some_simulation_result[optimal_avg_baseloop]
 
     return (optimal_avg_baseloop, optimal_lambda)
 
@@ -144,13 +144,29 @@ def main():
     neighbourhood = 0
     trigger_point = 300
     D = D_init
-    for i in range(num_simulation):
+
+    simulation_results = random_simulation(L, J, I0, h, a, trigger_point, D, t, Tau, T, num_simulation, optimal_lambda, neighbourhood)
+    optimal_result = get_optimal_siumulation_results(simulation_result)
+
+    print("Simulation Output:")
+    print(" ")
+
+    for some_avg_baseloop in simulation_results.keys():
+        print(str(some_avg_baseloop) + ": {}".format(simulation_results[some_avg_baseloop]))
+
+    print(" ")
+    print("Optimal Choice of Lambdas: {}".format(optimal_result[1]))
+    print("Optimal average baseloop: {}".format(optimal_result[0]))
+
+
+        '''
         print('simulation #', i)
         # randomly generate lambdas within neighbourhood of
         # the optimal non-skipping lambdas
         Lambda = get_random_lambdas(optimal_lambda, neighbourhood)
         print('lambdas: ', Lambda)
         simulation(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T)
+        '''
 
 if __name__ == "__main__":
     main()
