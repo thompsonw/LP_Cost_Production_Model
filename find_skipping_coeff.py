@@ -171,8 +171,8 @@ def main():
     kwargs = {'L': L, 'J': J, 't': t, 'T': T, 'I0':I0, 'D': D, 'Tau': Tau,\
               'a': a, 'h': h, 'D_init': D_init}
     optimal_lambda = cost_model(**kwargs)
-    num_simulation = 50
-    neighbourhood = 15
+    num_simulation = 200
+    neighbourhood = 30
     trigger_point = 300
     D = D_init
 
