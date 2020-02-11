@@ -5,15 +5,18 @@ import math
 
 def random_simulation(L, J, I0, h, a, trigger_point, D, t, Tau, T, num_simulation, optimal_lambda, neighbourhood):
 
-    simulation_results = {}
+    feasible_results = {}
+    infeasible_results = []
     for i in range(num_simulation):
         Lambda = get_random_lambdas(optimal_lambda, neighbourhood)
         avg_baseloop = get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T)
 
         if avg_baseloop != -1:
-            simulation_results[avg_baseloop] = Lambda
+            feasible_results[avg_baseloop] = Lambda
+        else:
+            infeasible_results.append(Lambda)
 
-    return simulation_results
+    return (feasible_results, infeasible_results)
 
 def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T):
     # initialize placeholders (all zeros) for skipping coefficients
@@ -28,18 +31,18 @@ def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, 
     total_changeover_cost = 0
 
     for j in range(J):
-        print('cur_inventory: ', cur_inventory)
-        print('Demand this time: ', D[j])
+        #print('cur_inventory: ', cur_inventory)
+        #print('Demand this time: ', D[j])
         # determine which items to skip
         for i in range(L):
             item_inventory = cur_inventory[i]
             if item_inventory < max(trigger_point, D[j][i]):
                 # produce this month
                 S[j][i] = 1
-            else:
+            #else:
                 #print('item', i, ' inventory: ', item_inventory)
                 #print('demand: ', D[j][i])
-                print('skip item ', i, ' in time period ', j)
+                #print('skip item ', i, ' in time period ', j)
         # compute baseloop at time j
         baseloop = get_baseloop_skipping(Lambda, t, S[j])
         total_baseloop += baseloop
@@ -51,11 +54,11 @@ def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, 
                 total_changeover_cost += a[i] * num_baseloop
                 if production + cur_inventory[i] < D[j][i]:
                     # does not meet demand
-                    print('Does not meet demand in time period ', j, \
-                          ' for item ', i)
+                    #print('Does not meet demand in time period ', j, \
+                          #' for item ', i)
                     return -1
-                else:
-                    print('production of item ', i, ' is ', production)
+                #else:
+                    #print('production of item ', i, ' is ', production)
             else:
                 production = 0
 
@@ -66,13 +69,13 @@ def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, 
 
     # feasibility: cost tolerance in a year
     if total_holding_cost + total_changeover_cost > Tau:
-        print('Exceeds cost tolerance')
+        #print('Exceeds cost tolerance')
         return -1
 
     avg_baseloop = total_baseloop/J
-    print('feasiblility achieved in this simulation')
-    print('average baseloop time is: ', avg_baseloop)
-    print('skipping coefficients: ', S)
+    #print('feasiblility achieved in this simulation')
+    #print('average baseloop time is: ', avg_baseloop)
+    #print('skipping coefficients: ', S)
     return avg_baseloop
 
 
@@ -114,15 +117,22 @@ def get_optimal_siumulation_results(some_simulation_result):
 
         return (optimal_avg_baseloop, optimal_lambda)
 
-def display_simulation_results(some_simulation_result, optimal_result):
+def display_simulation_results(feasible_results, optimal_result, infeasible_results):
 
     if optimal_result != -1:
         print("***************************")
         print("Simulation Output:")
         print(" ")
+        print("Infeasible Choices of Lambda:")
+        print(" ")
+        for Lambda in infeasible_results:
+            print("Infeasible: {}".format(Lambda))
 
-        for some_avg_baseloop in some_simulation_result.keys():
-            print(str(some_avg_baseloop) + ": {}".format(some_simulation_result[some_avg_baseloop]))
+        print(" ")
+        print("Feasible choices of Lambda:")
+        print(" ")
+        for some_avg_baseloop in feasible_results.keys():
+            print(str(some_avg_baseloop) + ": {}".format(feasible_results[some_avg_baseloop]))
 
         print(" ")
         print("Optimal Choice of Lambdas: {}".format(optimal_result[1]))
@@ -168,8 +178,10 @@ def main():
 
     #Run simulation:
     simulation_results = random_simulation(L, J, I0, h, a, trigger_point, D, t, Tau, T, num_simulation, optimal_lambda, neighbourhood)
-    optimal_result = get_optimal_siumulation_results(simulation_results)
-    display_simulation_results(simulation_results, optimal_result)
+    feasible_results = simulation_results[0]
+    infeasible_results = simulation_results[1]
+    optimal_result = get_optimal_siumulation_results(feasible_results)
+    display_simulation_results(feasible_results, optimal_result, infeasible_results)
 
 if __name__ == "__main__":
     main()
