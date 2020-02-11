@@ -24,35 +24,38 @@ D_init = [[0, 0], [70, 80], [40, 50], [70, 50], \
           [60, 60], [200, 275], [220, 225], [295, 300], [295, 350]] # demand
 
 
-def demand_upto(D, current_time, item_index):
+def demand_upto(demandMatrix, current_time, item_index):
     # D size: J x L
     demand = 0
     for period in range(current_time):
-        deamand += D[period][item_index]
+        demand += demandMatrix[period][item_index]
     return demand
 
 
-def get_cost_coeff(index, h, a, I0, t, Tau, D_init, T, J):
-    term1 = T * J * (J-1) * h[index] / 2
+def get_cost_coeff(index, storageCost, changeoverCost, initialInventory, productTime, costTolerance, D_init, totalTime, J):
+
+    term1 = totalTime * J * (J-1) * storageCost[index] / 2
+
     J_vector = [i for i in range(8, -1, -1)]
     J_np = np.array(J_vector)
-    D_np = np.asarray(D_init)
-    h_np = np.array(h)
-    term2 = t[i-1] * (J * dot_product(h, I0) - np.dot(np.dot(J_np, D_np),h_np) - Tau)
+    demand_np = np.asarray(D_init)
+    storageCost_np = np.array(storageCost)
+
+    term2 = productTime[i-1] * (J * dot_product(storageCost, initialInventory) - np.dot(np.dot(J_np, demand_np),storageCost_np) - costTolerance)
     return term1 + term2
 
-def dot_product(a, b):
-    # a and b are lists of the same length
-    result = 0
-    for i in range(len(a)):
-        result += a[i]*b[i]
-    return result
+def dot_product(vector1, vector2):
+    # vector1 and vector2 are lists of the same length
+    dotProduct = 0
+    for i in range(len(vector1)):
+        result += vector1[i]*vector2[i]
+    return dotProduct
 
-def optimizeBaseloop(L, J, totalTime, I0, D, D_inti, a, h, costTolerance, S):
+def optimize_Base_loop(L, J, totalTime, initialInventory, demandMatrix, D_init, storageCost, changeoverCost, costTolerance, skipCoeffMatrix, productTime):
 
     model = Model('loop minimization')
     Lambda = [model.add_var(var_type=INTEGER) for i in range(L)]
-    model.objective = minimize(xsum(Lambda[i] * t[i] for i in range(L)))
+    model.objective = minimize(xsum(Lambda[i] * productTime[i] for i in range(L)))
 
     cost_coeff = [0] * L
 
@@ -63,12 +66,12 @@ def optimizeBaseloop(L, J, totalTime, I0, D, D_inti, a, h, costTolerance, S):
             # baseloop constraints
             coeff = [0] * L
             for k in range(L):
-                coeff[k] = t[k]*(I0[i-1]-demand_upto(D, j, i-1))
-            coeff[i-1] += j*T
+                coeff[k] = productTime[k]*(initialInventory[i-1]-demand_upto(demandMatrix, j, i-1))
+            coeff[i-1] += j*totalTime
             model += xsum(coeff[i] * Lambda[i] for i in range(L)) >= 0
 
             # add coeffs in for cost constraint
-            cost_coeff[i-1] = get_cost_coeff(i-1)
+            cost_coeff[i-1] = get_cost_coeff(i-1, storageCost, changeoverCost, initialInventory, productTime, costTolerance, D_init, totalTime, J)
 
     # looptime >= 1
     model += xsum(t[i] * Lambda[i] for i in range(L)) >= 1
@@ -79,7 +82,7 @@ def optimizeBaseloop(L, J, totalTime, I0, D, D_inti, a, h, costTolerance, S):
     #print([Lambda[i].x for i in range(L)])
     return [Lambda[i].x for i in range(L)]
 
-def optimizeSkipping (skipCoeffMatrix, Lambda):
+def optimizeSkipping(skipCoeffMatrix, Lambda):
     pass #recursive approach?
 
 def modifySkipCoeffMatrix(skipCoeffMatrix):
