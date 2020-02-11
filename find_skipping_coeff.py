@@ -104,7 +104,7 @@ def get_random_lambdas(optimal_lambda, neighborhood):
     for i in range(len(optimal_lambda)):
         #result[i] = random.uniform(optimal_lambda[i] - neighbourhood, \
                                    #optimal_lambda[i] + neighbourhood)
-        result[i] = random.uniform(optimal_lambda[i] - neighborhood, optimal_lambda[i] + neighborhood)
+        result[i] = math.ceil(random.uniform(optimal_lambda[i] - neighborhood, optimal_lambda[i] + neighborhood))
     return result
 
 def get_optimal_siumulation_results(some_simulation_result):
@@ -171,7 +171,7 @@ def main():
     kwargs = {'L': L, 'J': J, 't': t, 'T': T, 'I0':I0, 'D': D, 'Tau': Tau,\
               'a': a, 'h': h, 'D_init': D_init}
     optimal_lambda = cost_model(**kwargs)
-    num_simulation = 200
+    num_simulation = 1000
     neighbourhood = 30
     trigger_point = 300
     D = D_init
