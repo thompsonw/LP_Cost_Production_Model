@@ -91,7 +91,7 @@ def get_baseloop_skipping(Lambda, t, s):
         baseloop += Lambda[i]*t[i]*s[i]
     return baseloop
 
-def get_random_lambdas(optimal_lambda, neighbourhood):
+def get_random_lambdas(optimal_lambda, neighborhood):
     '''
     optimal_lambda: a list of L items output by the non-skipping model
     neighbourhood: a number that gives a interval for lambdas we can take in
@@ -101,36 +101,59 @@ def get_random_lambdas(optimal_lambda, neighbourhood):
     for i in range(len(optimal_lambda)):
         #result[i] = random.uniform(optimal_lambda[i] - neighbourhood, \
                                    #optimal_lambda[i] + neighbourhood)
-        result[i] = random.uniform(optimal_lambda[i], optimal_lambda[i] + neighbourhood)
+        result[i] = random.uniform(optimal_lambda[i] - neighborhood, optimal_lambda[i] + neighborhood)
     return result
 
 def get_optimal_siumulation_results(some_simulation_result):
 
-    optimal_avg_baseloop = min(some_simulation_result.keys())
-    optimal_lambda = some_simulation_result[optimal_avg_baseloop]
+    if len(some_simulation_result) == 0:
+        return -1
+    else:
+        optimal_avg_baseloop = min(some_simulation_result.keys())
+        optimal_lambda = some_simulation_result[optimal_avg_baseloop]
 
-    return (optimal_avg_baseloop, optimal_lambda)
+        return (optimal_avg_baseloop, optimal_lambda)
+
+def display_simulation_results(some_simulation_result, optimal_result):
+
+    if optimal_result != -1:
+        print("***************************")
+        print("Simulation Output:")
+        print(" ")
+
+        for some_avg_baseloop in some_simulation_result.keys():
+            print(str(some_avg_baseloop) + ": {}".format(some_simulation_result[some_avg_baseloop]))
+
+        print(" ")
+        print("Optimal Choice of Lambdas: {}".format(optimal_result[1]))
+        print("Optimal average baseloop: {}".format(optimal_result[0]))
+        print("***************************")
+
+    else:
+        print(" ")
+        print("***************************")
+        print("Simulation Output:")
+        print(" ")
+        print("No feasible solution found")
+        print("***************************")
 
 
 def main():
-    # find optimal lambdas in non-skipping model
-    # number of items
-    L = 2
 
-    # number of time periods
-    J = 8
-
-    # vector of item times
-    t  = [2, 4]
-
+    L = 2 # number of items
+    J = 8 # number of time periods
+    t  = [2, 4] # vector of item times
     T = 1000 # total time
     I0 = [10, 10] # initial inventory
+
     # demand
     D = [[70, 80], [40, 50], [70, 50], [60, 60], \
          [200, 275], [220, 225], [295, 300], [295, 350]]
+
     Tau = 10000 # cost tolerance
     a = [2, 1] # changeover cost
     h = [1, 1] # inventory cost
+
     # demand with a dummy initial demand
     D_init = [[0, 0], [70, 80], [40, 50], [70, 50], \
               [60, 60], [200, 275], [220, 225], [295, 300], [295, 350]]
@@ -138,35 +161,15 @@ def main():
     kwargs = {'L': L, 'J': J, 't': t, 'T': T, 'I0':I0, 'D': D, 'Tau': Tau,\
               'a': a, 'h': h, 'D_init': D_init}
     optimal_lambda = cost_model(**kwargs)
-
-    # simulation
-    num_simulation = 1
-    neighbourhood = 0
+    num_simulation = 50
+    neighbourhood = 15
     trigger_point = 300
     D = D_init
 
+    #Run simulation:
     simulation_results = random_simulation(L, J, I0, h, a, trigger_point, D, t, Tau, T, num_simulation, optimal_lambda, neighbourhood)
-    optimal_result = get_optimal_siumulation_results(simulation_result)
-
-    print("Simulation Output:")
-    print(" ")
-
-    for some_avg_baseloop in simulation_results.keys():
-        print(str(some_avg_baseloop) + ": {}".format(simulation_results[some_avg_baseloop]))
-
-    print(" ")
-    print("Optimal Choice of Lambdas: {}".format(optimal_result[1]))
-    print("Optimal average baseloop: {}".format(optimal_result[0]))
-
-
-        '''
-        print('simulation #', i)
-        # randomly generate lambdas within neighbourhood of
-        # the optimal non-skipping lambdas
-        Lambda = get_random_lambdas(optimal_lambda, neighbourhood)
-        print('lambdas: ', Lambda)
-        simulation(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T)
-        '''
+    optimal_result = get_optimal_siumulation_results(simulation_results)
+    display_simulation_results(simulation_results, optimal_result)
 
 if __name__ == "__main__":
     main()
