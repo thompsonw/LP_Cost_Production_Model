@@ -183,5 +183,7 @@ def main():
     optimal_result = get_optimal_siumulation_results(feasible_results)
     display_simulation_results(feasible_results, optimal_result, infeasible_results)
 
+
+
 if __name__ == "__main__":
     main()
