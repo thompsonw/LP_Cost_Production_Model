@@ -14,18 +14,16 @@ def dot_product(a, b):
         result += a[i]*b[i]
     return result
 
-# number of items
-L = 2
+L = 3 # number of items
+J = 11 # number of time periods
+t  = [3, 4, 5] # vector of item times
+T = 1400 # total time
+I0 = [100, 150, 50] # initial inventory
 
-# number of time periods
-J = 3
-
-# vector of item times
-t  = [2, 4]
-
-T = 300
-I0 = [10, 100]
-D = [[40, 30], [60, 60], [100, 100]]
+# demand
+D = [[140, 100, 120], [140, 110, 100], [140, 90, 100], [120, 110, 110], \
+     [130, 110, 90], [120, 110, 90], [140, 100, 80], [150, 100, 90], \
+     [140, 80, 120], [140, 90, 110], [130, 110, 100]]
 
 model = Model('loop minimization')
 
