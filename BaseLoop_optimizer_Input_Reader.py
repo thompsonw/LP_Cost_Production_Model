@@ -51,7 +51,7 @@ class BaseLoopInputData:
     def read_Input_filename(self, some_Input_filename):
 
         all_Production_Times = []
-        #initial_Inventories= []
+        entire_Demand_Schedule = []
         changeover_Cost = []
         inventory_Cost = []
         item_Directory = {}
@@ -59,45 +59,34 @@ class BaseLoopInputData:
         inputData_csv = open(some_Input_filename, 'r', encoding='utf-8')
 
         for line in inputData_csv:
-            line.replace(",", "")
-
-        for line in inputData_csv:
             item_Data = line.split(",")
-            item_demand_horizon = item_Data[7].strip()
-            #print(item_demand_horizon)
-            num_time_periods = self.get_length_demand_schedule(item_demand_horizon)
-            #print(num_time_periods)
-            #print(type(num_time_periods)==int)
+            item_Demand_Horizon = item_Data[7].strip()
+            num_time_periods = int(self.get_length_demand_schedule(item_Demand_Horizon))
             entire_Demand_Schedule = [[] for i in range(num_time_periods)]
             line_index+=1
             break
 
         for line in inputData_csv:
-            item_Data = line.split(",")
-            print(item_Data[0])
-            print(item_Data[1])
-            print(item_Data[2])
 
+            item_Data = line.split(",")
 
             if line_index >= 1:
 
-                item_name = item_Data[0]
-                item_Directory[0] = item_name
+                item_Name = item_Data[0]
+                item_Directory[line_index - 1] = item_Name
 
-                item_expected_demand = item_Data[1]
-                item_stdev_demand = item_Data[2]
-                print(line_index)
-                print(item_expected_demand)
-                print(item_stdev_demand)
-                item_demand_schedule = self.get_item_demand_schedule(item_expected_demand, item_stdev_demand, num_time_periods)
-                entire_Demand_Schedule = self.update_demand_schedule(entire_Demand_Schedule, some_Item_Demand_Schedule)
+                item_Expected_Demand = float(item_Data[1])
+                item_Stdev_Demand = float(item_Data[2])
 
-                machine_Cycle_Time = item_Data[5]
-                units_per_Machince_Cycle = item_Data[6]
+                item_Demand_Schedule = self.get_item_demand_schedule(item_Expected_Demand, item_Stdev_Demand, num_time_periods)
+                entire_Demand_Schedule = self.update_demand_schedule(entire_Demand_Schedule, item_Demand_Schedule)
+
+                machine_Cycle_Time = float(item_Data[5])
+                units_per_Machince_Cycle = float(item_Data[6])
                 item_Production_Time = self.get_item_production_time(machine_Cycle_Time, units_per_Machince_Cycle)
                 all_Production_Times.append(item_Production_Time)
 
-                item_Inventory_Cost = item_Data[4]
+                item_Inventory_Cost = float(item_Data[4])
                 inventory_Cost.append(item_Inventory_Cost)
 
                 line_index += 1
