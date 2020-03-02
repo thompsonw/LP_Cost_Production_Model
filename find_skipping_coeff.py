@@ -145,7 +145,7 @@ def display_simulation_results(optimal_result):
 
 
 def main():
-    
+
     random.seed(0)
     csv_input = BaseLoopInputData('Input_Data.csv')
 
@@ -155,7 +155,7 @@ def main():
     num_items = len(holding_cost)
     num_periods = len(demand_schedule)
     demand_schedule_init = demand_schedule.copy()
-    demand_schedule_init.insert([0]*num_items, 0)
+    demand_schedule_init.insert(0,[0]*num_items)
     changeover_cost = csv_input.changeover_cost
     initial_inventory = csv_input.initial_inventories
     total_time = csv_input.total_time
