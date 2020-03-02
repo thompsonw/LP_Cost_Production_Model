@@ -6,7 +6,7 @@
 import csv
 import numpy as np
 
-class BaseLoopInputdata:
+class BaseLoopInputData:
 
     def __init__(self, input_filename):
 
@@ -14,7 +14,7 @@ class BaseLoopInputdata:
             self.entire_demand_schedule = self.read_input_filename(input_filename)[1]
             self.all_production_times = self.read_input_filename(input_filename)[2]
             self.inventory_cost = self.read_input_filename(input_filename)[3]
-            self.changeover_Cost = self.read_input_filename(input_filename)[4]
+            self.changeover_cost = self.read_input_filename(input_filename)[4]
             self.initial_inventories = self.read_input_filename(input_filename)[5]
             self.total_time = self.read_input_filename(input_filename)[6]
             self.cost_tolerance = self.read_input_filename(input_filename)[7]
@@ -44,7 +44,7 @@ class BaseLoopInputdata:
     def update_demand_schedule(self, entire_demand_schedule, some_item_demand_schedule):
 
         for i in range(len(entire_demand_schedule)):
-            entire_demand_schedule[i].append(some_Item_demand_schedule[i])
+            entire_demand_schedule[i].append(some_item_demand_schedule[i])
 
         return entire_demand_schedule
 
@@ -69,8 +69,8 @@ class BaseLoopInputdata:
         for line in inputdata_csv:
             item_data = line.split(",")
 
-            item_demand_Horizon = item_data[7].strip()
-            num_time_periods = int(self.get_length_demand_schedule(item_demand_Horizon))
+            item_demand_horizon = item_data[8].strip()
+            num_time_periods = int(self.get_length_demand_schedule(item_demand_horizon))
             entire_demand_schedule = [[] for i in range(num_time_periods)]
 
             total_time = item_data[9].strip()
