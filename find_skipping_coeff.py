@@ -1,6 +1,7 @@
 from cost_model import cost_model
 import random
 import math
+from BaseLoop_optimizer_Input_Reader import *
 
 
 def random_simulation(L, J, I0, h, a, trigger_point, D, t, Tau, T, num_simulation, optimal_lambda, neighbourhood):
@@ -145,6 +146,17 @@ def display_simulation_results(optimal_result):
 
 def main():
     random.seed(0)
+    csv_input = BaseLoopInputData('Input_Data.csv')
+
+    #demand_schedule = csv_input.entire_Demand_Schedule
+    #unit_production_time = csv_input.all_Production_Times
+    #holding_cost = csv_input.inventory_Cost
+    #num_items = len(holding_cost)
+    #num_periods = len(demand_schedule)
+    #demand_schedule_init = demand_schedule.copy()
+    #demand_schedule_init.assert([0]*num_items, 0)
+    #TODO: total_time, initial_inventory, cost_tolerance, changeover_cost
+
     num_items = 3 # total number of items
     num_periods = 11 # total number of time periods
     unit_production_time = [3, 4, 5] # vector of item production time per unit
@@ -176,16 +188,18 @@ def main():
     optimal_lambdas = cost_model(**kwargs)
 
     # output of skipping model after 1M simulations: [18, 8, 11]
-    optimal_lambda = [18, 8, 11]
-    num_simulation = 10
+    #optimal_lambda = [18, 8, 11]
+
+    num_simulation = 1000
     neighbourhood = 30
     trigger_point = 100
-    #D = D_init
+
+    '''
     avg_baseloop = get_average_baseloop_time(num_items, num_periods, \
     initial_inventory, holding_cost, changeover_cost, trigger_point, \
     demand_schedule, optimal_lambda, unit_production_time, cost_tolerance, \
-    total_time, print_optimal_info)
-'''
+    total_time, print_optimal_info) '''
+
     # Run simulations
     feasible_results = random_simulation(num_items, num_periods, \
                                          initial_inventory, holding_cost,\
@@ -195,7 +209,7 @@ def main():
                                          num_simulation, optimal_lambdas, \
                                          neighbourhood)
     optimal_result = get_optimal_siumulation_results(feasible_results)
-    display_simulation_results(optimal_result)'''
+    display_simulation_results(optimal_result)
 
 if __name__ == "__main__":
     main()

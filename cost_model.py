@@ -1,5 +1,6 @@
 import numpy as np
 from mip import Model, xsum, maximize, minimize, BINARY, INTEGER
+from BaseLoop_optimizer_Input_Reader import *
 
 
 def demand_upto(demand_schedule, current_time, item):
@@ -155,6 +156,7 @@ def main():
                             [120, 110, 90], [140, 100, 80], [150, 100, 90], \
                             [140, 80, 120], [140, 90, 110], [130, 110, 100]]
 
+    reader = BaseLoopInputData()
     kwargs = {'num_items': num_items, 'num_periods': num_periods, \
               'unit_production_time': unit_production_time, \
               'total_time': total_time, 'initial_inventory': initial_inventory, \
