@@ -148,15 +148,18 @@ def main():
     random.seed(0)
     csv_input = BaseLoopInputData('Input_Data.csv')
 
-    #demand_schedule = csv_input.entire_Demand_Schedule
-    #unit_production_time = csv_input.all_Production_Times
-    #holding_cost = csv_input.inventory_Cost
-    #num_items = len(holding_cost)
-    #num_periods = len(demand_schedule)
-    #demand_schedule_init = demand_schedule.copy()
-    #demand_schedule_init.assert([0]*num_items, 0)
-    #TODO: total_time, initial_inventory, cost_tolerance, changeover_cost
-
+    demand_schedule = csv_input.entire_Demand_Schedule
+    unit_production_time = csv_input.all_Production_Times
+    holding_cost = csv_input.inventory_Cost
+    num_items = len(holding_cost)
+    num_periods = len(demand_schedule)
+    demand_schedule_init = demand_schedule.copy()
+    demand_schedule_init.insert([0]*num_items, 0)
+    changeover_cost = csv_input.changeover_Cost
+    initial_inventory = csv_input.initial_inventories
+    total_time = csv_input.total_time
+    cost_tolerance = csv_input.cost_tolerance
+'''
     num_items = 3 # total number of items
     num_periods = 11 # total number of time periods
     unit_production_time = [3, 4, 5] # vector of item production time per unit
@@ -178,7 +181,7 @@ def main():
                             [140, 90, 100], [120, 110, 110], [130, 110, 90], \
                             [120, 110, 90], [140, 100, 80], [150, 100, 90], \
                             [140, 80, 120], [140, 90, 110], [130, 110, 100]]
-
+'''
     kwargs = {'num_items': num_items, 'num_periods': num_periods, \
               'unit_production_time': unit_production_time, \
               'total_time': total_time, 'initial_inventory': initial_inventory, \
@@ -198,7 +201,8 @@ def main():
     avg_baseloop = get_average_baseloop_time(num_items, num_periods, \
     initial_inventory, holding_cost, changeover_cost, trigger_point, \
     demand_schedule, optimal_lambda, unit_production_time, cost_tolerance, \
-    total_time, print_optimal_info) '''
+    total_time, print_optimal_info)
+    '''
 
     # Run simulations
     feasible_results = random_simulation(num_items, num_periods, \
