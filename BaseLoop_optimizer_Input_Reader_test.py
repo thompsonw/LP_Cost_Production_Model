@@ -1,15 +1,13 @@
 
 from BaseLoop_optimizer_Input_Reader import *
 
-test()
-
 Baseloop_Data = BaseLoopInputData("Input_Data.csv")
 
-item_Directory = Baseloop_Data.item_Directory
-entire_Demand_Schedule = Baseloop_Data.entire_Demand_Schedule
-all_Production_Times = Baseloop_Data.all_Production_Times
-inventory_Cost = Baseloop_Data.inventory_Cost
-changeover_Cost = Baseloop_Data.changeover_Cost
+item_Directory = Baseloop_Data.item_directory
+entire_Demand_Schedule = Baseloop_Data.entire_demand_schedule
+all_Production_Times = Baseloop_Data.all_production_times
+inventory_Cost = Baseloop_Data.inventory_cost
+changeover_Cost = Baseloop_Data.changeover_cost
 initial_inventories = Baseloop_Data.initial_inventories
 
 
