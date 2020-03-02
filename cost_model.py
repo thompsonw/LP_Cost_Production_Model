@@ -23,20 +23,43 @@ def demand_upto(demand_schedule, current_time, item):
     return demand_so_far
 
 
-def get_cost_coeff(index, total_time, num_periods, h, D_init, unit_production_time, initial_inventory, Tau):
-    term1 = total_time * num_periods * (num_periods-1) * h[index] / 2
+def get_cost_coeff(item_index, total_time, num_periods, holding_cost, \
+                   demand_schedule_init, unit_production_time, \
+                   initial_inventory, cost_tolerance):
+    '''
+    Compute the coefficient for a given item in the cost constraint of the
+    closed form of linear program
+
+    PARAMETERS:
+    item_index := index of the given item
+    total_time := total time in one period
+    num_periods := total number of time periods
+    holding_cost := 
+    demand_schedule_init :=
+    unit_production_time :=
+    initial_inventory :=
+    cost_tolerance :=
+
+    RETURN:
+    The coefficient ...
+    '''
+    term1 = total_time * num_periods * (num_periods-1) * holding_cost[index] / 2
+
     num_periods_vector = [i for i in range(num_periods, -1, -1)]
     num_periods_np = np.array(num_periods_vector)
-    D_np = np.asarray(D_init)
-    h_np = np.array(h)
+    d_np = np.asarray(demand_schedule_init)
+    holding_cost_np = np.array(holding_cost)
     initial_inventory_np = np.asarray(initial_inventory)
-    term2 = unit_production_time[index] * (num_periods * np.dot(h_np, initial_inventory_np) - \
-                        np.dot(np.dot(num_periods_np, D_np), h_np) - Tau)
-    return term1 + term2
+
+    term2 = unit_production_time[index] * (num_periods * np.dot(holding_cost_np, initial_inventory_np) - \
+                        np.dot(np.dot(num_periods_np, d_np), holding_cost_np) - cost_tolerance)
+    coefficient = term1 + term2
+    return coefficient
 
 
 def cost_model(num_items, num_periods, unit_production_time, total_time, \
-               initial_inventory, demand_schedule, Tau, a, h, D_init):
+               initial_inventory, demand_schedule, cost_tolerance, \
+               changeover_cost, holding_cost, demand_schedule_init):
     model = Model('loop minimization')
     Lambda = [model.add_var(var_type=INTEGER) for i in range(num_items)]
     model.objective = minimize(xsum(Lambda[i] * unit_production_time[i] for i in range(num_items)))
@@ -48,20 +71,22 @@ def cost_model(num_items, num_periods, unit_production_time, total_time, \
             # baseloop constraints
             coeff = [0] * num_items
             for k in range(num_items):
-                coeff[k] = unit_production_time[k]*(initial_inventory[i-1]-demand_upto(demand_schedule, j, i-1))
+                coeff[k] = unit_production_time[k] * \
+                           (initial_inventory[i-1] - \
+                            demand_upto(demand_schedule, j, i-1))
             coeff[i-1] += j*total_time
             model += xsum(coeff[i] * Lambda[i] for i in range(num_items)) >= 0
             # add coeffs in for cost constraint
             kwargs = {'num_periods': num_periods, 'unit_production_time': \
                       unit_production_time, 'total_time': total_time, \
-                      'initial_inventory':initial_inventory, 'Tau': Tau,\
-                      'h': h, 'D_init': D_init, 'index': i-1}
+                      'initial_inventory':initial_inventory, 'cost_tolerance': \
+                      cost_tolerance, 'holding_cost': holding_cost, \
+                      'demand_schedule_init': demand_schedule_init, 'item_index': i-1}
             cost_coeff[i-1] = get_cost_coeff(**kwargs)
 
     # cost constraint
-    print('cost coeff: ', cost_coeff)
     model += xsum(cost_coeff[i] * Lambda[i] for i in range(num_items)) <=\
-             - num_periods * total_time * sum(a)
+             - num_periods * total_time * sum(changeover_cost)
 
     # positive looptime
     model += xsum(unit_production_time[i] * Lambda[i] for i in range(num_items)) >= 1
@@ -80,8 +105,8 @@ def main():
     num_items = 3 # total number of items
     num_periods = 11 # total number of time periods
     unit_production_time = [3, 4, 5] # vector of item production time per unit
-    total_time = 1400 # total time
-    initial_inventory = [100, 150, 50] # initial inventory
+    total_time = 1400
+    initial_inventory = [100, 150, 50]
 
     # demand
     demand_schedule = [[140, 100, 120], [140, 110, 110], [140, 90, 100], \
@@ -89,20 +114,22 @@ def main():
                        [140, 100, 80], [150, 100, 90], [140, 80, 120], \
                        [140, 90, 110], [130, 110, 100]]
 
-    Tau = 10000 # cost tolerance
-    a = [10, 10, 20] # changeover cost
-    h = [1, 2, 2] # inventory cost
+    cost_tolerance = 10000 # cost tolerance
+    changeover_cost = [10, 10, 20] # changeover cost
+    holding_cost = [1, 2, 2] # inventory cost
 
     # demand with a dummy initial demand
-    D_init = [[0, 0, 0], [140, 100, 120], [140, 110, 110], [140, 90, 100], [120, 110, 110], \
-              [130, 110, 90], [120, 110, 90], [140, 100, 80], [150, 100, 90], \
-              [140, 80, 120], [140, 90, 110], [130, 110, 100]]
+    demand_schedule_init = [[0, 0, 0], [140, 100, 120], [140, 110, 110], \
+                            [140, 90, 100], [120, 110, 110], [130, 110, 90], \
+                            [120, 110, 90], [140, 100, 80], [150, 100, 90], \
+                            [140, 80, 120], [140, 90, 110], [130, 110, 100]]
 
     kwargs = {'num_items': num_items, 'num_periods': num_periods, \
               'unit_production_time': unit_production_time, \
-              'total_time': total_time, 'initial_inventory': initial_inventory,\
-              'demand_schedule': demand_schedule, 'Tau': Tau,\
-              'a': a, 'h': h, 'D_init': D_init}
+              'total_time': total_time, 'initial_inventory': initial_inventory, \
+              'demand_schedule': demand_schedule, 'cost_tolerance': cost_tolerance, \
+              'changeover_cost': changeover_cost, 'holding_cost': holding_cost, \
+              'demand_schedule_init': demand_schedule_init}
     cost_model(**kwargs)
 
 if __name__=='__main__':
