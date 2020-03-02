@@ -44,7 +44,7 @@ def get_cost_coeff(item_index, total_time, num_periods, holding_cost, \
     The coefficient for the given item's lambda in the cost constraint of the
     closed form of linear program
     '''
-    term1 = total_time * num_periods * (num_periods-1) * holding_cost[index] / 2
+    term1 = total_time * num_periods * (num_periods-1) * holding_cost[item_index] / 2
 
     num_periods_vector = [i for i in range(num_periods, -1, -1)]
     num_periods_np = np.array(num_periods_vector)
@@ -52,7 +52,7 @@ def get_cost_coeff(item_index, total_time, num_periods, holding_cost, \
     holding_cost_np = np.array(holding_cost)
     initial_inventory_np = np.asarray(initial_inventory)
 
-    term2 = unit_production_time[index] * \
+    term2 = unit_production_time[item_index] * \
             (num_periods * np.dot(holding_cost_np, initial_inventory_np) - \
             np.dot(np.dot(num_periods_np, d_np), holding_cost_np) -\
                    cost_tolerance)
