@@ -4,22 +4,18 @@ import math
 
 
 def random_simulation(L, J, I0, h, a, trigger_point, D, t, Tau, T, num_simulation, optimal_lambda, neighbourhood):
-
     feasible_results = {}
-    infeasible_results = []
     for i in range(num_simulation):
         Lambda = get_random_lambdas(optimal_lambda, neighbourhood)
-        avg_baseloop = get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T)
+        avg_baseloop = get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T, False)
 
         if avg_baseloop != -1:
             feasible_results[avg_baseloop] = Lambda
-        else:
-            infeasible_results.append(Lambda)
 
-    return (feasible_results, infeasible_results)
+    return feasible_results
 
 
-def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T):
+def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T, print_optimal_info):
     inventory = []
 
     # initialize placeholders (all zeros) for skipping coefficients
@@ -70,12 +66,14 @@ def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, 
         return -1
 
     avg_baseloop = total_baseloop/(J*L)
-    print('feasiblility achieved in this simulation')
-    print('average baseloop time is: ', avg_baseloop)
-    print('skipping coefficients: ', S)
-    print('inventory: ', inventory)
-    print('total_holding_cost: ', total_holding_cost)
-    print('total_changeover_cost: ', total_changeover_cost)
+
+    if print_optimal_info:
+        print('average baseloop time is: ', avg_baseloop)
+        print('skipping coefficients: ', S)
+        print('inventory: ', inventory)
+        print('total_holding_cost: ', total_holding_cost)
+        print('total_changeover_cost: ', total_changeover_cost)
+
     return avg_baseloop
 
 
@@ -112,7 +110,6 @@ def get_random_lambdas(optimal_lambda, neighborhood):
 
 
 def get_optimal_siumulation_results(some_simulation_result):
-
     if len(some_simulation_result) == 0:
         return -1
     else:
@@ -122,97 +119,83 @@ def get_optimal_siumulation_results(some_simulation_result):
         return (optimal_avg_baseloop, optimal_lambda)
 
 
-def display_simulation_results(feasible_results, optimal_result, infeasible_results):
+def display_simulation_results(optimal_result):
+    '''
+    Displays the optimal lamdbas and average base loop found in the Simulation
+    or indicate that no feasible solutions were found
 
+    PARAMETERS:
+    optimal_result := a tuple of the average base loop and its corresponding
+                      lambdas
+
+    RETURN:
+    None
+    '''
+    print("***************************")
+    print("Simulation Output:")
     if optimal_result != -1:
-        print("***************************")
-        print("Simulation Output:")
-        print(" ")
-        print("Infeasible Choices of Lambda:")
-        print(" ")
-        #for Lambda in infeasible_results:
-            #print("Infeasible: {}".format(Lambda))
-
-        print(" ")
-        print("Feasible choices of Lambda:")
-        print(" ")
-        #for some_avg_baseloop in feasible_results.keys():
-            #print(str(some_avg_baseloop) + ": {}".format(feasible_results[some_avg_baseloop]))
-
-        print(" ")
         print("Optimal Choice of Lambdas: {}".format(optimal_result[1]))
         print("Optimal average baseloop: {}".format(optimal_result[0]))
         print("***************************")
 
     else:
-        print(" ")
-        print("***************************")
-        print("Simulation Output:")
-        print(" ")
         print("No feasible solution found")
         print("***************************")
 
 
 def main():
-    '''
-    L = 3;
-    J = 11;
-
-    t = [3;4;5];
-    T = 1400;
-    I0 = [100;150;50];
-    D = [140 100 120; 140 110 110; 140 90 100; 120 110 110;130 110 90;
-    120 110 90; 140 100 80; 150 100 90; 140 80 120; 140 90 110; 130 110 100]';
-
-    h = [1;2;2];
-    a = [20;10;15];
-    costtol =  10000
-    '''
     random.seed(0)
-    L = 3 # number of items
-    J = 11 # number of time periods
-    t  = [3, 4, 5] # vector of item times
-    T = 1400 # total time
-    I0 = [100, 150, 50] # initial inventory
+    num_items = 3 # total number of items
+    num_periods = 11 # total number of time periods
+    unit_production_time = [3, 4, 5] # vector of item production time per unit
+    total_time = 1400
+    initial_inventory = [100, 150, 50]
 
     # demand
-    D = [[140, 100, 120], [140, 110, 100], [140, 90, 100], [120, 110, 110], \
-         [130, 110, 90], [120, 110, 90], [140, 100, 80], [150, 100, 90], \
-         [140, 80, 120], [140, 90, 110], [130, 110, 100]]
+    demand_schedule = [[140, 100, 120], [140, 110, 110], [140, 90, 100], \
+                       [120, 110, 110], [130, 110, 90], [120, 110, 90], \
+                       [140, 100, 80], [150, 100, 90], [140, 80, 120], \
+                       [140, 90, 110], [130, 110, 100]]
 
-    Tau = 10000 # cost tolerance
-    a = [20, 10, 15] # changeover cost
-    h = [1, 2, 2] # inventory cost
+    cost_tolerance = 10000 # cost tolerance
+    changeover_cost = [10, 10, 20] # changeover cost
+    holding_cost = [1, 2, 2] # inventory cost
 
     # demand with a dummy initial demand
-    D_init = [[0, 0, 0], [140, 100, 120], [140, 110, 100], [140, 90, 100], [120, 110, 110], \
-              [130, 110, 90], [120, 110, 90], [140, 100, 80], [150, 100, 90], \
-              [140, 80, 120], [140, 90, 110], [130, 110, 100]]
+    demand_schedule_init = [[0, 0, 0], [140, 100, 120], [140, 110, 110], \
+                            [140, 90, 100], [120, 110, 110], [130, 110, 90], \
+                            [120, 110, 90], [140, 100, 80], [150, 100, 90], \
+                            [140, 80, 120], [140, 90, 110], [130, 110, 100]]
 
-    kwargs = {'L': L, 'J': J, 't': t, 'T': T, 'I0':I0, 'D': D, 'Tau': Tau,\
-              'a': a, 'h': h, 'D_init': D_init}
+    kwargs = {'num_items': num_items, 'num_periods': num_periods, \
+              'unit_production_time': unit_production_time, \
+              'total_time': total_time, 'initial_inventory': initial_inventory, \
+              'demand_schedule': demand_schedule, 'cost_tolerance': cost_tolerance, \
+              'changeover_cost': changeover_cost, 'holding_cost': holding_cost, \
+              'demand_schedule_init': demand_schedule_init}
+    optimal_lambdas = cost_model(**kwargs)
 
-    #optimal_lambda = cost_model(**kwargs)
-    # output of cost model: [24, 12, 13]
-    #optimal_lambda = [21, 11, 12]
     # output of skipping model after 1M simulations: [18, 8, 11]
     optimal_lambda = [18, 8, 11]
-    #num_simulation = 1000000
-    #neighbourhood = 30
+    num_simulation = 10
+    neighbourhood = 30
     trigger_point = 100
     #D = D_init
-    avg_baseloop = get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, optimal_lambda, t, Tau, T)
-
-    '''
-    #Run simulation:
-    simulation_results = random_simulation(L, J, I0, h, a, trigger_point, D, t, Tau, T, num_simulation, optimal_lambda, neighbourhood)
-    feasible_results = simulation_results[0]
-    infeasible_results = simulation_results[1]
+    avg_baseloop = get_average_baseloop_time(num_items, num_periods, \
+    initial_inventory, holding_cost, changeover_cost, trigger_point, \
+    demand_schedule, optimal_lambda, unit_production_time, cost_tolerance, \
+    total_time, print_optimal_info)
+'''
+    # Run simulations
+    feasible_results = random_simulation(num_items, num_periods, \
+                                         initial_inventory, holding_cost,\
+                                         changeover_cost, trigger_point, \
+                                         demand_schedule, unit_production_time,\
+                                         cost_tolerance, total_time, \
+                                         num_simulation, optimal_lambdas, \
+                                         neighbourhood)
     optimal_result = get_optimal_siumulation_results(feasible_results)
-    display_simulation_results(feasible_results, optimal_result, infeasible_results)
-    '''
-
-
+    display_simulation_results(optimal_result)'''
 
 if __name__ == "__main__":
     main()
