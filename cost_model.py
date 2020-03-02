@@ -34,14 +34,15 @@ def get_cost_coeff(item_index, total_time, num_periods, holding_cost, \
     item_index := index of the given item
     total_time := total time in one period
     num_periods := total number of time periods
-    holding_cost := 
-    demand_schedule_init :=
-    unit_production_time :=
-    initial_inventory :=
-    cost_tolerance :=
+    holding_cost := inventory cost for each item
+    demand_schedule_init := demand schedule including the initial time period
+    unit_production_time := time needed to produce one unit for each item
+    initial_inventory := initial inventory for each item
+    cost_tolerance := total cost tolerance for the year
 
     RETURN:
-    The coefficient ...
+    The coefficient for the given item's lambda in the cost constraint of the
+    closed form of linear program
     '''
     term1 = total_time * num_periods * (num_periods-1) * holding_cost[index] / 2
 
@@ -51,8 +52,10 @@ def get_cost_coeff(item_index, total_time, num_periods, holding_cost, \
     holding_cost_np = np.array(holding_cost)
     initial_inventory_np = np.asarray(initial_inventory)
 
-    term2 = unit_production_time[index] * (num_periods * np.dot(holding_cost_np, initial_inventory_np) - \
-                        np.dot(np.dot(num_periods_np, d_np), holding_cost_np) - cost_tolerance)
+    term2 = unit_production_time[index] * \
+            (num_periods * np.dot(holding_cost_np, initial_inventory_np) - \
+            np.dot(np.dot(num_periods_np, d_np), holding_cost_np) -\
+                   cost_tolerance)
     coefficient = term1 + term2
     return coefficient
 
@@ -60,12 +63,37 @@ def get_cost_coeff(item_index, total_time, num_periods, holding_cost, \
 def cost_model(num_items, num_periods, unit_production_time, total_time, \
                initial_inventory, demand_schedule, cost_tolerance, \
                changeover_cost, holding_cost, demand_schedule_init):
+    '''
+    Solves for the cost model. Find lambdas that satisfy the cost constraint and
+    have inventory meet demand at each time period
+
+    PARAMETERS:
+    num_items := total number of items
+    num_periods := total number of time periods
+    unit_production_time := time needed to produce one unit for each item
+    total_time := total time in one period
+    initial_inventory := initial inventory for each item
+    demand_schedule := a matrix of size (J, L) containing demand for each item
+    cost_tolerance := total cost tolerance for the year
+    changeover_cost := changeover cost for each item
+    holding_cost := inventory cost for each item
+    demand_schedule_init := demand schedule including the initial time period
+
+    RETURN:
+    None
+    '''
+    # initialize model
     model = Model('loop minimization')
+
+    # add model variables
     Lambda = [model.add_var(var_type=INTEGER) for i in range(num_items)]
-    model.objective = minimize(xsum(Lambda[i] * unit_production_time[i] for i in range(num_items)))
-    cost_coeff = [0] * num_items
+
+    # set model objective
+    model.objective = minimize(xsum(Lambda[i] * unit_production_time[i] \
+                                    for i in range(num_items)))
 
     # add constraints
+    cost_coeff = [0] * num_items
     for i in range(1, num_items+1):
         for j in range(1, num_periods+1):
             # baseloop constraints
@@ -75,22 +103,25 @@ def cost_model(num_items, num_periods, unit_production_time, total_time, \
                            (initial_inventory[i-1] - \
                             demand_upto(demand_schedule, j, i-1))
             coeff[i-1] += j*total_time
+            # add constraints for inventory to meet demand at each time period
             model += xsum(coeff[i] * Lambda[i] for i in range(num_items)) >= 0
             # add coeffs in for cost constraint
             kwargs = {'num_periods': num_periods, 'unit_production_time': \
                       unit_production_time, 'total_time': total_time, \
                       'initial_inventory':initial_inventory, 'cost_tolerance': \
                       cost_tolerance, 'holding_cost': holding_cost, \
-                      'demand_schedule_init': demand_schedule_init, 'item_index': i-1}
+                      'demand_schedule_init': demand_schedule_init, \
+                      'item_index': i-1}
             cost_coeff[i-1] = get_cost_coeff(**kwargs)
 
     # cost constraint
     model += xsum(cost_coeff[i] * Lambda[i] for i in range(num_items)) <=\
              - num_periods * total_time * sum(changeover_cost)
 
-    # positive looptime
+    # constraint on positive looptime
     model += xsum(unit_production_time[i] * Lambda[i] for i in range(num_items)) >= 1
 
+    # solve for model
     model.optimize()
 
     print('result of cost model (non-skipping): ')
