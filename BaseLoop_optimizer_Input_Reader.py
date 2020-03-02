@@ -16,6 +16,9 @@ class BaseLoopinputdata:
             self.inventory_cost = self.read_input_filename(input_filename)[3]
             self.changeover_Cost = self.read_input_filename(input_filename)[4]
             self.initial_inventories = self.read_input_filename(input_filename)[5]
+            self.total_time = self.read_input_filename(input_filename)[6]
+            self.cost_tolerance = self.read_input_filename(input_filename)[7]
+
 
     def get_item_demand_schedule(self, expected_demand, stdev_demand, num_time_periods):
 
@@ -52,6 +55,8 @@ class BaseLoopinputdata:
 
     def read_input_filename(self, some_input_filename):
 
+        total_time = 0
+        cost_tolerance = 0
         item_directory = {}
         entire_demand_schedule = []
         changeover_cost = []
@@ -63,9 +68,14 @@ class BaseLoopinputdata:
 
         for line in inputdata_csv:
             item_data = line.split(",")
+
             item_demand_Horizon = item_data[7].strip()
             num_time_periods = int(self.get_length_demand_schedule(item_demand_Horizon))
             entire_demand_schedule = [[] for i in range(num_time_periods)]
+
+            total_time = item_data[9].strip()
+            cost_tolerance = item_data[10].strip()
+
             line_index+=1
             break
 
@@ -98,4 +108,4 @@ class BaseLoopinputdata:
 
                 line_index += 1
 
-        return item_directory, entire_demand_schedule, all_production_times,inventory_cost, changeover_cost, initial_inventories
+        return item_directory, entire_demand_schedule, all_production_times, inventory_cost, changeover_cost, initial_inventories, total_time, cost_tolerance
