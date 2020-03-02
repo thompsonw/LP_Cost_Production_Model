@@ -6,7 +6,7 @@
 import csv
 import numpy as np
 
-class BaseLoopinputdata:
+class BaseLoopInputdata:
 
     def __init__(self, input_filename):
 
