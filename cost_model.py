@@ -1,3 +1,8 @@
+# The cost model: finds optimal base loop that satisfies cost constraint,
+# positive base loop, and have inventory meet demand at each time period.
+# @author Rosa Zhou
+# @author Will Thompson
+
 import numpy as np
 from mip import Model, xsum, maximize, minimize, BINARY, INTEGER
 from BaseLoop_optimizer_Input_Reader import *

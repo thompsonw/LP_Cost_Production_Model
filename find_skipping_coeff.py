@@ -1,3 +1,7 @@
+# The skipping model
+# @author Rosa Zhou
+# @author Will Thompson
+
 from cost_model import cost_model
 import random
 import math
@@ -148,7 +152,7 @@ def main():
 
     random.seed(0)
 
-    csv_input = BaseLoopInputData('Input_Data.csv')
+    csv_input = BaseLoopInputData('Input_Data_2.csv')
     demand_schedule = csv_input.entire_demand_schedule
     unit_production_time = csv_input.all_production_times
     holding_cost = csv_input.inventory_cost
@@ -173,7 +177,7 @@ def main():
     if optimal_lambdas == -1:
         optimal_lambdas = [random.randint(1, 100) for i in range(num_items)]
 
-    num_simulation = 1000000
+    num_simulation = 100000000
     neighbourhood = 30
 
     '''
