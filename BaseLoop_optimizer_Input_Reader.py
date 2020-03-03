@@ -114,4 +114,4 @@ class BaseLoopInputData:
 
                 line_index += 1
 
-        return item_directory, entire_demand_schedule, all_production_times, inventory_cost, changeover_cost, initial_inventories, total_time, cost_tolerance, trigger_pointss
+        return item_directory, entire_demand_schedule, all_production_times, inventory_cost, changeover_cost, initial_inventories, total_time, cost_tolerance, trigger_points
