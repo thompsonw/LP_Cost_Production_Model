@@ -67,7 +67,7 @@ def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, 
         return -1
 
     avg_baseloop = total_baseloop/(J*L)
-
+    print('hi')
     if print_optimal_info:
         print('average baseloop time is: ', avg_baseloop)
         print('skipping coefficients: ', S)
@@ -195,20 +195,22 @@ def main():
     optimal_lambdas = cost_model(**kwargs)
 
     # output of skipping model after 1M simulations: [18, 8, 11]
-    #optimal_lambda = [18, 8, 11]
+    optimal_lambdas =  [2, 246, 5, 30, 4, 5, 3, 4, 2, 6, 16, 1, 5, 5, 2, 4, 4, 11]
 
-    num_simulation = 1000
-    neighbourhood = 30
-    trigger_point = 100
+    num_simulation = 100000
+    neighbourhood = 5
+    trigger_point = 50000
 
-    '''
+    print('hi')
     avg_baseloop = get_average_baseloop_time(num_items, num_periods, \
     initial_inventory, holding_cost, changeover_cost, trigger_point, \
-    demand_schedule, optimal_lambda, unit_production_time, cost_tolerance, \
-    total_time, print_optimal_info)
-    '''
+    demand_schedule, optimal_lambdas, unit_production_time, cost_tolerance, \
+    total_time, True)
+    print(avg_baseloop)
+
 
     # Run simulations
+    '''
     feasible_results = random_simulation(num_items, num_periods, \
                                          initial_inventory, holding_cost,\
                                          changeover_cost, trigger_point, \
@@ -218,6 +220,6 @@ def main():
                                          neighbourhood)
     optimal_result = get_optimal_siumulation_results(feasible_results)
     display_simulation_results(optimal_result)
-
+    '''
 if __name__ == "__main__":
     main()
