@@ -18,6 +18,7 @@ class BaseLoopInputData:
             self.initial_inventories = self.read_input_filename(input_filename)[5]
             self.total_time = self.read_input_filename(input_filename)[6]
             self.cost_tolerance = self.read_input_filename(input_filename)[7]
+            self.trigger_points = self.read_input_filename(input_filename)[8]
 
 
     def get_item_demand_schedule(self, expected_demand, stdev_demand, num_time_periods):
@@ -63,18 +64,20 @@ class BaseLoopInputData:
         inventory_cost = []
         all_production_times = []
         initial_inventories = []
+        trigger_points = []
+
         line_index = 0
         inputdata_csv = open(some_input_filename, 'r', encoding='utf-8')
 
         for line in inputdata_csv:
             item_data = line.split(",")
 
-            item_demand_horizon = item_data[8].strip()
+            item_demand_horizon = item_data[9].strip()
             num_time_periods = int(self.get_length_demand_schedule(item_demand_horizon))
             entire_demand_schedule = [[] for i in range(num_time_periods)]
 
-            total_time = float(item_data[10].strip())
-            cost_tolerance = float(item_data[12].strip())
+            total_time = float(item_data[11].strip())
+            cost_tolerance = float(item_data[13].strip())
 
             line_index+=1
             break
@@ -106,6 +109,9 @@ class BaseLoopInputData:
                 item_initial_inventory = float(item_data[7])
                 initial_inventories.append(item_initial_inventory)
 
+                item_trigger_point = float(item_data[8])
+                trigger_points.append(item_trigger_point)
+
                 line_index += 1
 
-        return item_directory, entire_demand_schedule, all_production_times, inventory_cost, changeover_cost, initial_inventories, total_time, cost_tolerance
+        return item_directory, entire_demand_schedule, all_production_times, inventory_cost, changeover_cost, initial_inventories, total_time, cost_tolerance, trigger_pointss

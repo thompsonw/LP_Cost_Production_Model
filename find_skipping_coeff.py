@@ -160,6 +160,8 @@ def main():
     initial_inventory = csv_input.initial_inventories
     total_time = csv_input.total_time
     cost_tolerance = csv_input.cost_tolerance
+    trigger_points = csv_input.trigger_points
+
 
     kwargs = {'num_items': num_items, 'num_periods': num_periods, \
               'unit_production_time': unit_production_time, \
