@@ -23,6 +23,7 @@ class BaseLoopInputData:
 
     def get_item_demand_schedule(self, expected_demand, stdev_demand, num_time_periods):
 
+        np.random.seed(0)
         item_demand_array = np.random.normal(expected_demand, stdev_demand, num_time_periods)
         item_demand_list = item_demand_array.tolist()
 
@@ -114,4 +115,4 @@ class BaseLoopInputData:
 
                 line_index += 1
 
-        return item_directory, entire_demand_schedule, all_production_times, inventory_cost, changeover_cost, initial_inventories, total_time, cost_tolerance, trigger_pointss
+        return item_directory, entire_demand_schedule, all_production_times, inventory_cost, changeover_cost, initial_inventories, total_time, cost_tolerance, trigger_points
