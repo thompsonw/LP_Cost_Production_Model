@@ -4,11 +4,11 @@ import math
 from BaseLoop_optimizer_Input_Reader import *
 
 
-def random_simulation(L, J, I0, h, a, trigger_point, D, t, Tau, T, num_simulation, optimal_lambda, neighbourhood):
+def random_simulation(L, J, I0, h, a, trigger_points, D, t, Tau, T, num_simulation, optimal_lambda, neighbourhood):
     feasible_results = {}
     for i in range(num_simulation):
         Lambda = get_random_lambdas(optimal_lambda, neighbourhood)
-        avg_baseloop = get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T, False)
+        avg_baseloop = get_average_baseloop_time(L, J, I0, h, a, trigger_points, D, Lambda, t, Tau, T, False)
 
         if avg_baseloop != -1:
             feasible_results[avg_baseloop] = Lambda
@@ -16,7 +16,7 @@ def random_simulation(L, J, I0, h, a, trigger_point, D, t, Tau, T, num_simulatio
     return feasible_results
 
 
-def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, T, print_optimal_info):
+def get_average_baseloop_time(L, J, I0, h, a, trigger_points, D, Lambda, t, Tau, T, print_optimal_info):
     inventory = []
 
     # initialize placeholders (all zeros) for skipping coefficients
@@ -35,7 +35,7 @@ def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, 
         # determine which items to skip
         for i in range(L):
             item_inventory = cur_inventory[i]
-            if item_inventory < max(trigger_point, D[j][i]):
+            if item_inventory < max(trigger_points[i], D[j][i]):
                 # produce this month
                 S[j][i] = 1
         # compute baseloop at time j
@@ -50,6 +50,7 @@ def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, 
                     total_changeover_cost += a[i] * num_baseloop
                 if production + cur_inventory[i] < D[j][i]:
                     # does not meet demand
+                    if print_optimal_info: print('Does not meet demand')
                     return -1
             else:
                 production = 0
@@ -63,11 +64,10 @@ def get_average_baseloop_time(L, J, I0, h, a, trigger_point, D, Lambda, t, Tau, 
 
     # feasibility: cost tolerance in a year
     if total_holding_cost + total_changeover_cost > Tau:
-        #print('Exceeds cost tolerance')
+        if print_optimal_info: print('Exceeds cost tolerance')
         return -1
 
     avg_baseloop = total_baseloop/(J*L)
-    print('hi')
     if print_optimal_info:
         print('average baseloop time is: ', avg_baseloop)
         print('skipping coefficients: ', S)
@@ -162,7 +162,6 @@ def main():
     cost_tolerance = csv_input.cost_tolerance
     trigger_points = csv_input.trigger_points
 
-
     kwargs = {'num_items': num_items, 'num_periods': num_periods, \
               'unit_production_time': unit_production_time, \
               'total_time': total_time, 'initial_inventory': initial_inventory, \
@@ -172,26 +171,23 @@ def main():
 
     optimal_lambdas = cost_model(**kwargs)
 
-    # output of skipping model after 1M simulations: [18, 8, 11]
-    optimal_lambdas =  [2, 246, 5, 30, 4, 5, 3, 4, 2, 6, 16, 1, 5, 5, 2, 4, 4, 11]
-
     num_simulation = 100000
     neighbourhood = 5
-    trigger_point = 50000
 
+    #'''
     print('hi')
+    # output of skipping model after simulations
+    optimal_lambdas =  [5, 222, 6, 29, 4, 1, 4, 3, 5, 3, 6, 4, 5, 2, 1, 3, 1, 9]
     avg_baseloop = get_average_baseloop_time(num_items, num_periods, \
-    initial_inventory, holding_cost, changeover_cost, trigger_point, \
+    initial_inventory, holding_cost, changeover_cost, trigger_points, \
     demand_schedule, optimal_lambdas, unit_production_time, cost_tolerance, \
     total_time, True)
     print(avg_baseloop)
-
-
-    # Run simulations
     '''
+    # Run simulations
     feasible_results = random_simulation(num_items, num_periods, \
                                          initial_inventory, holding_cost,\
-                                         changeover_cost, trigger_point, \
+                                         changeover_cost, trigger_points, \
                                          demand_schedule, unit_production_time,\
                                          cost_tolerance, total_time, \
                                          num_simulation, optimal_lambdas, \
