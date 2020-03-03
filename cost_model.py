@@ -125,6 +125,10 @@ def cost_model(num_items, num_periods, unit_production_time, total_time, \
     # solve for model
     model.optimize()
 
-    print('result of cost model (non-skipping): ')
-    print([Lambda[i].x for i in range(num_items)])
-    return [Lambda[i].x for i in range(num_items)]
+    try:
+        print('result of cost model (non-skipping): ')
+        print([Lambda[i].x for i in range(num_items)])
+        return [Lambda[i].x for i in range(num_items)]
+    except:
+        print("no solution for cost model")
+        return -1

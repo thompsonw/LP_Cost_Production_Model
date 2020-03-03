@@ -170,11 +170,13 @@ def main():
               'demand_schedule_init': demand_schedule_init}
 
     optimal_lambdas = cost_model(**kwargs)
+    if optimal_lambdas == -1:
+        optimal_lambdas = [random.randint(1, 100) for i in range(num_items)]
 
-    num_simulation = 100000
-    neighbourhood = 5
+    num_simulation = 1000000
+    neighbourhood = 30
 
-    #'''
+    '''
     print('hi')
     # output of skipping model after simulations
     optimal_lambdas =  [5, 222, 6, 29, 4, 1, 4, 3, 5, 3, 6, 4, 5, 2, 1, 3, 1, 9]
@@ -194,6 +196,6 @@ def main():
                                          neighbourhood)
     optimal_result = get_optimal_siumulation_results(feasible_results)
     display_simulation_results(optimal_result)
-    '''
+    #'''
 if __name__ == "__main__":
     main()
