@@ -148,10 +148,10 @@ def main():
 
     random.seed(0)
 
-    csv_input = BaseLoopInputdata('Input_Data.csv')
-    demand_schedule = csv_input.entire_Demand_Schedule
-    unit_production_time = csv_input.all_Production_Times
-    holding_cost = csv_input.inventory_Cost
+    csv_input = BaseLoopInputData('Input_Data.csv')
+    demand_schedule = csv_input.entire_demand_schedule
+    unit_production_time = csv_input.all_production_times
+    holding_cost = csv_input.inventory_cost
     num_items = len(holding_cost)
     num_periods = len(demand_schedule)
     demand_schedule_init = demand_schedule.copy()

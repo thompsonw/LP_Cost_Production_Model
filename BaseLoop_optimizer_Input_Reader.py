@@ -73,8 +73,8 @@ class BaseLoopInputData:
             num_time_periods = int(self.get_length_demand_schedule(item_demand_horizon))
             entire_demand_schedule = [[] for i in range(num_time_periods)]
 
-            total_time = item_data[9].strip()
-            cost_tolerance = item_data[10].strip()
+            total_time = float(item_data[10].strip())
+            cost_tolerance = float(item_data[12].strip())
 
             line_index+=1
             break
