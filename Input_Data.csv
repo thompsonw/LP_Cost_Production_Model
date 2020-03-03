@@ -1,4 +1,4 @@
-Item,Demand,Std Dev Demand,Change Over Cost,Inventory Price/unit,Machine cycle time(min),Units per machine cycle,Initial Inventory ,Monthly,Total Time:,10000,Cost Tolerance:,500000
+Item,Demand,Std Dev Demand,Change Over Cost,Inventory Price/unit,Machine cycle time(min),Units per machine cycle,Initial Inventory ,Monthly,Total Time:,50000,Cost Tolerance:,1000000
 2.00 MIL PMMA FILM  00138200  DGO 38 IN,12397,10098,323,1.09,60,2209,1239.7,,,,,
 2.00 MIL PMMA FILM  00138200  DGO 51 IN,565081,385171,14745,0.69,60,2938,56508.1,,,,,
 3.00 MIL PMMA Film  00033300 IMClear  38 IN,25638,7061,496,1.61,60,1968,2563.8,,,,,
