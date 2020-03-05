@@ -181,7 +181,7 @@ def get_optimal_siumulation_results(some_simulation_result):
 
     RETURN:
     A tuple containing two objects: a list of optimal lambdas, one for each item,
-    as well as the average Base Loop this choice of lambdas produced 
+    as well as the average Base Loop this choice of lambdas produced
     '''
 
     if len(some_simulation_result) == 0:
@@ -246,7 +246,7 @@ def main():
     if optimal_lambdas == -1:
         optimal_lambdas = [random.randint(1, 100) for i in range(num_items)]
 
-    num_simulation = 100000000
+    num_simulation = 1000000
     neighbourhood = 30
 
     '''
