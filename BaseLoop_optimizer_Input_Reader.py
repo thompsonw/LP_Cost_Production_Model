@@ -9,19 +9,65 @@ import numpy as np
 class BaseLoopInputData:
 
     def __init__(self, input_filename):
+        '''
+        This class takes in data from a csv file and saves all data into 9 lists
 
-            self.item_directory = self.read_input_filename(input_filename)[0]
-            self.entire_demand_schedule = self.read_input_filename(input_filename)[1]
-            self.all_production_times = self.read_input_filename(input_filename)[2]
-            self.inventory_cost = self.read_input_filename(input_filename)[3]
-            self.changeover_cost = self.read_input_filename(input_filename)[4]
-            self.initial_inventories = self.read_input_filename(input_filename)[5]
-            self.total_time = self.read_input_filename(input_filename)[6]
-            self.cost_tolerance = self.read_input_filename(input_filename)[7]
-            self.trigger_points = self.read_input_filename(input_filename)[8]
+        PARAMETERS:
+        self.item_directory :=  The data for each item data stored in a list
+                                will be stored in lists, which are indexed by
+                                item. The purpose of this dictionary is to give
+                                the name of the item that corresponds to a particular
+                                piece of data.
+
+                                The keys in this dictionary are the indices and
+                                the values are the names of the items so that
+                                it is clear what information stored in the lists
+                                corresponds to which item.
+        self.entire_demand_schedule := This object is a list of lists containing
+                                       the demand for each item in each time period.
+                                       The nth list in this object contains the
+                                       demand for each item in the nth time
+                                       period.
+        self.all_production_times := This is a list containing the production time
+                                     for each item. The nth entry in this list
+                                     is the production time for the nth items
+        self.inventory_cost := This is a list of all item inventory costs
+        self.changeover_cost := This is a list of all item changeover costs
+        self.initial_inventories := This is a list of all of the initial
+                                    inventories for each item
+        self.total_time := A fixed amount of time available to produce items
+        self.cost_tolerance := A number that represents the maximum cost
+                               production can incure
+        self.trigger_points := This is a list of all item trigger points
+
+        '''
+
+        self.item_directory = self.read_input_filename(input_filename)[0]
+        self.entire_demand_schedule = self.read_input_filename(input_filename)[1]
+        self.all_production_times = self.read_input_filename(input_filename)[2]
+        self.inventory_cost = self.read_input_filename(input_filename)[3]
+        self.changeover_cost = self.read_input_filename(input_filename)[4]
+        self.initial_inventories = self.read_input_filename(input_filename)[5]
+        self.total_time = self.read_input_filename(input_filename)[6]
+        self.cost_tolerance = self.read_input_filename(input_filename)[7]
+        self.trigger_points = self.read_input_filename(input_filename)[8]
 
 
     def get_item_demand_schedule(self, expected_demand, stdev_demand, num_time_periods):
+        '''
+        This function estimates an item's demand schedule. With a specified demand
+        horizon, we sample from a normal distribution given by the item's expected
+        demand and standard deviation.
+
+
+        PARAMETERS:
+        expected_demand := The average demand for an item
+        stdev_demand :=
+        num_time_periods :=
+
+        RETURN:
+        A list containing the item's demand over the given number of time periods
+        '''
 
         np.random.seed(0)
         item_demand_array = np.random.normal(expected_demand, stdev_demand, num_time_periods)
@@ -31,6 +77,18 @@ class BaseLoopInputData:
 
 
     def get_length_demand_schedule(self, demand_horizon):
+        '''
+        This function converts a spreadsheet's description of the
+        deamnd horizon, such as "Weekly" or "Monthly" into an integer value
+
+
+        PARAMETERS:
+        demand_horizon := a qualitative description of how many time periods the
+                          loop will run for
+
+        RETURN:
+        An integer value for the number of time periods
+        '''
 
         if demand_horizon == "Monthly":
             length_demand_schedule = 12
@@ -44,19 +102,54 @@ class BaseLoopInputData:
         return length_demand_schedule
 
     def update_demand_schedule(self, entire_demand_schedule, some_item_demand_schedule):
+        '''
+        This function is designed to insert an item's demand schedule into the
+        entire_demand_schedule object, which contains all demands index by time
+        period.
 
+        PARAMETERS:
+        entire_demand_schedule := A list of lists containing all item demand in
+                                  each time period
+
+        some_item_demand_schedule := A list of an item's demand for each time period
+
+        RETURN:
+        An updated version of entire_demand_schedule containing a new list
+        of item demand
+        '''
         for i in range(len(entire_demand_schedule)):
             entire_demand_schedule[i].append(some_item_demand_schedule[i])
 
         return entire_demand_schedule
 
     def get_item_production_time(self, machine_cycle_time, units_per_machine_cycle):
+        '''
+        This function calculates item production time by dividing total machine
+        cycle time by the number of units produced in that time
+
+        PARAMETERS:
+        machine_cycle_time := The total time for a machine to run one cycle
+
+        units_per_machine_cycle := The number of items produced in one cycle
+
+        RETURN:
+        item production time
+        '''
 
         item_production_time = (machine_cycle_time/units_per_machine_cycle)
         return item_production_time
 
     def read_input_filename(self, some_input_filename):
+        ''''
+        This function reads in the data from a csv file
 
+        PARAMETERS:
+        some_input_filename := The csv spreadsheet containing the appropriate data
+
+        RETURN:
+        Returns 7 lists of item data, including the complete demand schedule,
+        as well as total_time and cost_tolerance. 
+        '''
         total_time = 0
         cost_tolerance = 0
         item_directory = {}
