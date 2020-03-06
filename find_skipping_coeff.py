@@ -23,6 +23,7 @@ def random_simulation(L, J, I0, h, a, trigger_points, D, t, Tau, T, num_simulati
     D: A list of lists containing all item demands in each time period
     t: a list of time takes to produce one unit of item
     Tau: cost tolerance
+    T: the total time available to run the loop in each time period
     num_simulation: the number of simulations to run
     optimal_lambda: the output from the Cost Model that optimizes Base Loop
                     without skipping
@@ -66,7 +67,6 @@ def get_average_baseloop_time(L, J, I0, h, a, trigger_points, D, Lambda, t, Tau,
     RETURN:
     Average Base Loop time
     '''
-
     inventory = []
 
     # initialize placeholders (all zeros) for skipping coefficients
@@ -117,7 +117,7 @@ def get_average_baseloop_time(L, J, I0, h, a, trigger_points, D, Lambda, t, Tau,
         if print_optimal_info: print('Exceeds cost tolerance')
         return -1
 
-    avg_baseloop = total_baseloop/(J*L)
+    avg_baseloop = total_baseloop/(J)
     if print_optimal_info:
         print('average baseloop time is: ', avg_baseloop)
         print('skipping coefficients: ', S)
@@ -181,7 +181,7 @@ def get_optimal_siumulation_results(some_simulation_result):
 
     RETURN:
     A tuple containing two objects: a list of optimal lambdas, one for each item,
-    as well as the average Base Loop this choice of lambdas produced 
+    as well as the average Base Loop this choice of lambdas produced
     '''
 
     if len(some_simulation_result) == 0:
@@ -233,7 +233,8 @@ def main():
     initial_inventory = csv_input.initial_inventories
     total_time = csv_input.total_time
     cost_tolerance = csv_input.cost_tolerance
-    trigger_points = csv_input.trigger_points
+    #trigger_points = csv_input.trigger_points
+    trigger_points = [0] * num_items
 
     kwargs = {'num_items': num_items, 'num_periods': num_periods, \
               'unit_production_time': unit_production_time, \
@@ -246,13 +247,13 @@ def main():
     if optimal_lambdas == -1:
         optimal_lambdas = [random.randint(1, 100) for i in range(num_items)]
 
-    num_simulation = 100000000
-    neighbourhood = 30
+    num_simulation = 100000
+    neighbourhood = 5
 
-    '''
+    #'''
     print('hi')
     # output of skipping model after simulations
-    optimal_lambdas =  [5, 222, 6, 29, 4, 1, 4, 3, 5, 3, 6, 4, 5, 2, 1, 3, 1, 9]
+    optimal_lambdas =  [5, 41, 2, 2, 4, 10, 9, 6, 47]
     avg_baseloop = get_average_baseloop_time(num_items, num_periods, \
     initial_inventory, holding_cost, changeover_cost, trigger_points, \
     demand_schedule, optimal_lambdas, unit_production_time, cost_tolerance, \
@@ -269,6 +270,6 @@ def main():
                                          neighbourhood)
     optimal_result = get_optimal_siumulation_results(feasible_results)
     display_simulation_results(optimal_result)
-    #'''
+    '''
 if __name__ == "__main__":
     main()
