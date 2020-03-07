@@ -251,7 +251,6 @@ def main():
     neighbourhood = 10
 
     #'''
-    print('hi')
     # output of skipping model after simulations
     #[9, 73, 11, 6, 7, 9, 16, 10, 85]
     #Optimal average baseloop: 2.0326898433789404
@@ -260,7 +259,7 @@ def main():
     initial_inventory, holding_cost, changeover_cost, trigger_points, \
     demand_schedule, optimal_lambdas, unit_production_time, cost_tolerance, \
     total_time, True)
-    print(avg_baseloop)
+    print('demand_schedule_init: ', demand_schedule_init)
     '''
     # Run simulations
     feasible_results = random_simulation(num_items, num_periods, \
