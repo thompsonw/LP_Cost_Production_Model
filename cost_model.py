@@ -5,7 +5,7 @@
 
 import numpy as np
 from mip import Model, xsum, maximize, minimize, BINARY, INTEGER
-from BaseLoop_optimizer_Input_Reader import *
+from input_reader import *
 
 
 def demand_upto(demand_schedule, current_time, item):

@@ -5,7 +5,7 @@
 from cost_model import cost_model
 import random
 import math
-from BaseLoop_optimizer_Input_Reader import *
+from input_reader import *
 
 
 def random_simulation(L, J, I0, h, a, trigger_points, D, t, Tau, T, num_simulation, optimal_lambda, neighbourhood):
@@ -221,7 +221,7 @@ def main():
 
     random.seed(0)
 
-    csv_input = BaseLoopInputData('Input_Data_2.csv')
+    csv_input = BaseLoopInputData('Input_Data.csv')
     demand_schedule = csv_input.entire_demand_schedule
     unit_production_time = csv_input.all_production_times
     holding_cost = csv_input.inventory_cost
@@ -247,13 +247,15 @@ def main():
     if optimal_lambdas == -1:
         optimal_lambdas = [random.randint(1, 100) for i in range(num_items)]
 
-    num_simulation = 100000
-    neighbourhood = 5
+    num_simulation = 1000000
+    neighbourhood = 10
 
     #'''
     print('hi')
     # output of skipping model after simulations
-    optimal_lambdas =  [5, 41, 2, 2, 4, 10, 9, 6, 47]
+    #[9, 73, 11, 6, 7, 9, 16, 10, 85]
+    #Optimal average baseloop: 2.0326898433789404
+    optimal_lambdas =  [9, 73, 11, 6, 7, 9, 16, 10, 85]
     avg_baseloop = get_average_baseloop_time(num_items, num_periods, \
     initial_inventory, holding_cost, changeover_cost, trigger_points, \
     demand_schedule, optimal_lambdas, unit_production_time, cost_tolerance, \
