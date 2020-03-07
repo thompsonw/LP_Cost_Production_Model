@@ -12,17 +12,13 @@ class BaseLoopInputData:
         '''
         This class takes in data from a csv file and saves all data into 9 lists
 
-        PARAMETERS:
+        Instance variables:
         self.item_directory :=  The data for each item data stored in a list
                                 will be stored in lists, which are indexed by
-                                item. The purpose of this dictionary is to give
-                                the name of the item that corresponds to a particular
-                                piece of data.
+                                item.
 
                                 The keys in this dictionary are the indices and
-                                the values are the names of the items so that
-                                it is clear what information stored in the lists
-                                corresponds to which item.
+                                the values are the names of the items.
         self.entire_demand_schedule := This object is a list of lists containing
                                        the demand for each item in each time period.
                                        The nth list in this object contains the
@@ -39,9 +35,7 @@ class BaseLoopInputData:
         self.cost_tolerance := A number that represents the maximum cost
                                production can incure
         self.trigger_points := This is a list of all item trigger points
-
         '''
-
         self.item_directory = self.read_input_filename(input_filename)[0]
         self.entire_demand_schedule = self.read_input_filename(input_filename)[1]
         self.all_production_times = self.read_input_filename(input_filename)[2]
@@ -62,16 +56,18 @@ class BaseLoopInputData:
 
         PARAMETERS:
         expected_demand := The average demand for an item
-        stdev_demand :=
-        num_time_periods :=
+        stdev_demand := standard deviation of demand
+        num_time_periods := total number of time periods
 
         RETURN:
         A list containing the item's demand over the given number of time periods
         '''
 
         np.random.seed(0)
-        item_demand_array = np.random.normal(expected_demand, stdev_demand, num_time_periods)
+        item_demand_array = np.random.normal(expected_demand, stdev_demand,\
+                                             num_time_periods)
         item_demand_list = item_demand_array.tolist()
+        item_demand_list = [int(i) for i in item_demand_list]
 
         return item_demand_list
 
@@ -148,7 +144,7 @@ class BaseLoopInputData:
 
         RETURN:
         Returns 7 lists of item data, including the complete demand schedule,
-        as well as total_time and cost_tolerance. 
+        as well as total_time and cost_tolerance.
         '''
         total_time = 0
         cost_tolerance = 0
