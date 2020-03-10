@@ -247,14 +247,14 @@ def main():
     if optimal_lambdas == -1:
         optimal_lambdas = [random.randint(1, 100) for i in range(num_items)]
 
-    num_simulation = 1000000
+    num_simulation = 100000
     neighbourhood = 10
 
     #'''
     # output of skipping model after simulations
-    #[9, 73, 11, 6, 7, 9, 16, 10, 85]
-    #Optimal average baseloop: 2.0326898433789404
-    optimal_lambdas =  [9, 73, 11, 6, 7, 9, 16, 10, 85]
+    # [11, 84, 5, 4, 13, 9, 18, 8, 96]
+    # Optimal average baseloop: 2.442414905878085
+    optimal_lambdas = [11, 84, 5, 4, 13, 9, 18, 8, 96]
     avg_baseloop = get_average_baseloop_time(num_items, num_periods, \
     initial_inventory, holding_cost, changeover_cost, trigger_points, \
     demand_schedule, optimal_lambdas, unit_production_time, cost_tolerance, \
