@@ -65,6 +65,7 @@ class BaseLoopInputData:
         np.random.seed(0)
         item_demand_array = np.random.normal(expected_demand, stdev_demand,\
                                              num_time_periods)
+
         item_demand_list = item_demand_array.tolist()
         item_demand_list = [int(i) for i in item_demand_list]
         negative_samples = self.get_negative_samples(item_demand_list)
@@ -74,7 +75,7 @@ class BaseLoopInputData:
 
         return item_demand_list
 
-    def get_negative_samples(demand_list):
+    def get_negative_samples(self, demand_list):
         '''
         This function iterates through a sampled demand schedule and returns the
         indices of negative samples.
@@ -98,7 +99,7 @@ class BaseLoopInputData:
 
         return indices_of_negative_samples
 
-    def make_sample_positive(expected_demand, stdev_demand):
+    def make_sample_positive(self, expected_demand, stdev_demand):
         '''
         This function keeps sampling from a normal distribution until it returns
         a sample that is positive. This new positive sample will replace the
@@ -117,7 +118,7 @@ class BaseLoopInputData:
         while sign == -1:
             new_demand_sample = np.random.normal(expected_demand, stdev_demand)
 
-            if (-1*some_demand_sample) > 0:
+            if (-1*new_demand_sample) > 0:
                 sign == 1
         return new_demand_sample
 
