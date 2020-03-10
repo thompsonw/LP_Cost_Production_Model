@@ -118,8 +118,8 @@ class BaseLoopInputData:
         while sign == -1:
             new_demand_sample = np.random.normal(expected_demand, stdev_demand)
 
-            if (-1*new_demand_sample) > 0:
-                sign == 1
+            if (new_demand_sample) > 0:
+                sign = 1
         return new_demand_sample
 
     def get_length_demand_schedule(self, demand_horizon):
