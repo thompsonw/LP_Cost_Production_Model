@@ -53,7 +53,6 @@ class BaseLoopInputData:
         horizon, we sample from a normal distribution given by the item's expected
         demand and standard deviation.
 
-
         PARAMETERS:
         expected_demand := The average demand for an item
         stdev_demand := standard deviation of demand
@@ -68,9 +67,59 @@ class BaseLoopInputData:
                                              num_time_periods)
         item_demand_list = item_demand_array.tolist()
         item_demand_list = [int(i) for i in item_demand_list]
+        negative_samples = self.get_negative_samples(item_demand_list)
+
+        for index in negative_samples:
+            item_demand_list[index] = self.make_sample_positive(expected_demand, stdev_demand)
 
         return item_demand_list
 
+    def get_negative_samples(demand_list):
+        '''
+        This function iterates through a sampled demand schedule and returns the
+        indices of negative samples.
+
+        PARAMETERS:
+        demand_list := a list of an item's demand in each time period
+
+        RETURN:
+        A list containing the indices of samples that were negative
+        '''
+
+        indices_of_negative_samples = []
+
+        new_demand_list = demand_list.copy()
+        sign_of_entries_array = np.sign(new_demand_list)
+        sign_of_entries_list = sign_of_entries_array.tolist()
+
+        for i in range(len(sign_of_entries_list)):
+            if sign_of_entries_list[i] == -1.0:
+                indices_of_negative_samples.append(i)
+
+        return indices_of_negative_samples
+
+    def make_sample_positive(expected_demand, stdev_demand):
+        '''
+        This function keeps sampling from a normal distribution until it returns
+        a sample that is positive. This new positive sample will replace the
+        previous negative sample.
+
+        PARAMETERS:
+        expected_demand := The average demand for an item
+        stdev_demand := standard deviation of demand
+
+        RETURN:
+        A positive sample from a normal distribution with the given mean and
+        standard deviation
+        '''
+
+        sign = -1
+        while sign == -1:
+            new_demand_sample = np.random.normal(expected_demand, stdev_demand)
+
+            if (-1*some_demand_sample) > 0:
+                sign == 1
+        return new_demand_sample
 
     def get_length_demand_schedule(self, demand_horizon):
         '''
