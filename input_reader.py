@@ -117,8 +117,7 @@ class BaseLoopInputData:
         sign = -1
         while sign == -1:
             new_demand_sample = np.random.normal(expected_demand, stdev_demand)
-
-            if (new_demand_sample) > 0:
+            if new_demand_sample > 0:
                 sign = 1
         return new_demand_sample
 
